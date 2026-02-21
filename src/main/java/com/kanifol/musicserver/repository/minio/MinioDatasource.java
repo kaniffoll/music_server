@@ -2,6 +2,7 @@ package com.kanifol.musicserver.repository.minio;
 
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
+import io.minio.StatObjectArgs;
 import io.minio.errors.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,18 +22,23 @@ public class MinioDatasource {
         this.minioClient = minioClient;
     }
 
-//    public InputStream audioStream(String key) {
-//        System.out.println("Using endpoint: " + s3Client.serviceClientConfiguration().endpointOverride().orElse(null));
-//        return s3Client.getObject(request ->
-//                request.bucket(bucket).key(key).build());
-//    }
-
-    public InputStream audioStream(String key) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public InputStream audioStream(String key, long offset, long length) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         return minioClient.getObject(GetObjectArgs
                 .builder()
                 .bucket(bucket)
+                .offset(offset)
+                .length(length)
                 .object(key)
                 .build());
     }
 
+    public long getObjectSize(String key) throws Exception {
+        return minioClient.statObject(
+                StatObjectArgs
+                        .builder()
+                        .bucket(bucket)
+                        .object(key)
+                        .build()
+        ).size();
+    }
 }

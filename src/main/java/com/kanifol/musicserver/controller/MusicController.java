@@ -2,10 +2,7 @@ package com.kanifol.musicserver.controller;
 
 import com.kanifol.musicserver.service.MusicService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @RestController()
@@ -19,7 +16,10 @@ public class MusicController {
     }
 
     @GetMapping(path = "{id}")
-    public ResponseEntity<StreamingResponseBody> findById(@PathVariable Long id) {
-        return musicService.findById(id);
+    public ResponseEntity<StreamingResponseBody> findById(
+            @PathVariable Long id,
+            @RequestHeader(value = "Range", required = false) String range
+    ) {
+        return musicService.findById(id, range);
     }
 }
