@@ -1,12 +1,15 @@
 package com.kanifol.musicserver.service;
 
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
+import java.util.Arrays;
 import java.util.Date;
 
 public class JwtService {
@@ -18,18 +21,31 @@ public class JwtService {
     @Value("${musicserver.app.jwt.refresh-exp}")
     private long refreshTokenExp;
 
-    private String generateJwtToken(Authentication authentication, long exp, String tokenType) {
-        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-        String username = authentication.getName();
-        return Jwts.builder()
-                .header()
-                    .add("tokenType", tokenType)
-                    .and()
-                .subject(username)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + exp))
-                .signWith(key)
-                .compact();
+    private SecretKey key;
+
+    @PostConstruct
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
+            return true;
+        } catch (JwtException e) {
+            System.out.println(Arrays.toString(e.getStackTrace()));
+            return false;
+        }
+    }
+
+    public String getUsername(String token) {
+        return Jwts
+                .parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
     }
 
     public String generateRefreshToken(Authentication authentication) {
@@ -38,5 +54,18 @@ public class JwtService {
 
     public String generateAccessToken(Authentication authentication) {
         return generateJwtToken(authentication, accessTokenExp, "access");
+    }
+
+    private String generateJwtToken(Authentication authentication, long exp, String tokenType) {
+        String username = authentication.getName();
+        return Jwts.builder()
+                .header()
+                .add("tokenType", tokenType)
+                .and()
+                .subject(username)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + exp))
+                .signWith(key)
+                .compact();
     }
 }
