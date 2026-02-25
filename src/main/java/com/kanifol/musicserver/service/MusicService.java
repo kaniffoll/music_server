@@ -1,7 +1,7 @@
 package com.kanifol.musicserver.service;
 
 import com.kanifol.musicserver.repository.MusicRepository;
-import com.kanifol.musicserver.repository.TrackMetadata;
+import com.kanifol.musicserver.repository.model.TrackMetadata;
 import com.kanifol.musicserver.repository.minio.MinioDatasource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -11,7 +11,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import java.io.InputStream;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 public class MusicService {

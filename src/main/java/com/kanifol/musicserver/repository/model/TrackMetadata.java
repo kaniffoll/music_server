@@ -1,4 +1,4 @@
-package com.kanifol.musicserver.repository;
+package com.kanifol.musicserver.repository.model;
 
 import jakarta.persistence.*;
 
@@ -14,8 +14,7 @@ public class TrackMetadata {
     private String cover_url;
     private String audio_url;
 
-    public TrackMetadata(Long id, String title, String artist, String album, String cover_url, String audio_url) {
-        this.id = id;
+    public TrackMetadata(String title, String artist, String album, String cover_url, String audio_url) {
         this.title = title;
         this.artist = artist;
         this.album = album;

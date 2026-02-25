@@ -1,5 +1,6 @@
-package com.kanifol.musicserver.repository.minio;
+package com.kanifol.musicserver.config;
 
+import com.kanifol.musicserver.repository.minio.MinioProperties;
 import io.minio.MinioClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
