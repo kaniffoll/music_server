@@ -3,6 +3,7 @@ package com.kanifol.musicserver.repository.model;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -40,6 +41,8 @@ public class User {
     }
 
     public void setRoles(Set<Role> roles) {}
+
+    public List<String> getRolesNames() { return roles.stream().map(Role::getName).toList(); }
 
     public Long getId() {
         return id;

@@ -4,10 +4,11 @@ import com.kanifol.musicserver.repository.RoleRepository;
 import com.kanifol.musicserver.repository.UserRepository;
 import com.kanifol.musicserver.repository.model.Role;
 import com.kanifol.musicserver.repository.model.User;
+import com.kanifol.musicserver.service.dto.LoginRequest;
 import com.kanifol.musicserver.service.dto.RegisterRequest;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,5 +50,28 @@ public class UserService {
                         .map(rl -> new SimpleGrantedAuthority(rl.getName()))
                         .toList()
         );
+    }
+
+    @Transactional
+    public Authentication login(LoginRequest loginRequest) {
+        User user = userRepository.findByUsername(loginRequest.username())
+                .orElseThrow(() -> new RuntimeException("Username Not Found"));
+        if (!passwordEncoder.matches(loginRequest.password(), user.getPasswordHash())) {
+            throw new BadCredentialsException("Wrong Password");
+        }
+        return new UsernamePasswordAuthenticationToken(
+                user.getUsername(),
+                null,
+                user
+                        .getRoles()
+                        .stream()
+                        .map(rl -> new SimpleGrantedAuthority(rl.getName()))
+                        .toList()
+        );
+    }
+
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Username Not Found"));
     }
 }

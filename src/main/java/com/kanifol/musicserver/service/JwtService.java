@@ -1,16 +1,18 @@
 package com.kanifol.musicserver.service;
 
+import com.kanifol.musicserver.service.dto.TokenResponse;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-
+import org.springframework.security.core.GrantedAuthority;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 public class JwtService {
 
@@ -48,24 +50,33 @@ public class JwtService {
                 .getSubject();
     }
 
-    public String generateRefreshToken(Authentication authentication) {
-        return generateJwtToken(authentication, refreshTokenExp, "refresh");
-    }
-
-    public String generateAccessToken(Authentication authentication) {
-        return generateJwtToken(authentication, accessTokenExp, "access");
-    }
-
-    private String generateJwtToken(Authentication authentication, long exp, String tokenType) {
-        String username = authentication.getName();
+    public String generateJwtToken(String username, List<String> roles, long exp, String tokenType) {
         return Jwts.builder()
                 .header()
                 .add("tokenType", tokenType)
                 .and()
                 .subject(username)
+                .claim("roles", roles)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + exp))
                 .signWith(key)
                 .compact();
+    }
+
+    public String generateRefreshToken(String username, List<String> roles) {
+        return generateJwtToken(username, roles, refreshTokenExp, "refresh");
+    }
+
+    public String generateAccessToken(String username, List<String> roles) {
+        return generateJwtToken(username, roles, accessTokenExp, "access");
+    }
+
+    public TokenResponse generateTokenResponse(Authentication auth) {
+        String username = auth.getName();
+        List<String> roles = auth
+                .getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+        String accessToken = generateAccessToken(username, roles);
+        String refreshToken = generateRefreshToken(username, roles);
+        return new TokenResponse(accessToken, refreshToken);
     }
 }
