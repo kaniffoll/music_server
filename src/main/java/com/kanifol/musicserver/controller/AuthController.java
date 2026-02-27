@@ -29,13 +29,14 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponse> refreshToken(@RequestBody RefreshRequest request) {
+    public ResponseEntity<String> refreshToken(@RequestBody RefreshRequest request) {
         if (!jwtService.validateToken(request.refreshToken()))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
         User user = userService.getUserByUsername(request.username());
-        String newAccessToken = jwtService.generateAccessToken(user.getUsername(), user.getRolesNames());
-        return ResponseEntity.ok(new TokenResponse(newAccessToken, request.refreshToken()));
+        return ResponseEntity.ok(
+                jwtService.generateAccessToken(user.getUsername(), user.getRolesNames())
+        );
     }
 
     @PostMapping("/register")
