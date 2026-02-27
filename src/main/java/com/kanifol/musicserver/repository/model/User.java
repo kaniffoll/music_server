@@ -40,7 +40,7 @@ public class User {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {}
+    public void setRoles(Set<Role> roles) { this.roles = roles; }
 
     public List<String> getRolesNames() { return roles.stream().map(Role::getName).toList(); }
 
