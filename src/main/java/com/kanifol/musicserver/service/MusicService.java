@@ -3,6 +3,8 @@ package com.kanifol.musicserver.service;
 import com.kanifol.musicserver.repository.MusicRepository;
 import com.kanifol.musicserver.repository.model.TrackMetadata;
 import com.kanifol.musicserver.repository.minio.MinioDatasource;
+import com.kanifol.musicserver.service.dto.TrackMetadataResponse;
+import com.kanifol.musicserver.service.mappers.DtoMappers;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +25,11 @@ public class MusicService {
         this.minioDatasource = minioDatasource;
     }
 
-    public ResponseEntity<StreamingResponseBody> findById(Long id, String rangeHeader) {
+    public ResponseEntity<StreamingResponseBody> findStreamById(Long id, String rangeHeader) {
         TrackMetadata trackMetadata = musicRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Track with id " + id + " not found"));
 
-        String key = trackMetadata.getAudio_url();
+        String key = trackMetadata.getAudioUrl();
 
         long fileSize;
         try {
@@ -74,5 +76,27 @@ public class MusicService {
                 .status(rangeHeader == null ? 200 : 206)
                 .headers(headers)
                 .body(body);
+    }
+
+    public TrackMetadataResponse findMetaDataById(Long id) {
+        TrackMetadata trackMetadata = musicRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Track with id " + id + " not found"));
+
+        return DtoMappers.toDto(trackMetadata);
+    }
+
+    public StreamingResponseBody findCoverById(Long id) {
+        TrackMetadata trackMetadata = musicRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Track with id " + id + " not found"));
+
+        String key = trackMetadata.getCoverUrl();
+
+        return out -> {
+            try (InputStream stream = minioDatasource.coverStream(key)) {
+                stream.transferTo(out);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
     }
 }

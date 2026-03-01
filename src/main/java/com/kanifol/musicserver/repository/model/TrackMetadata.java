@@ -11,15 +11,17 @@ public class TrackMetadata {
     private String title;
     private String artist;
     private String album;
-    private String cover_url;
-    private String audio_url;
+    @Column(name = "cover_url")
+    private String coverUrl;
+    @Column(name = "audio_url")
+    private String audioUrl;
 
-    public TrackMetadata(String title, String artist, String album, String cover_url, String audio_url) {
+    public TrackMetadata(String title, String artist, String album, String coverUrl, String audioUrl) {
         this.title = title;
         this.artist = artist;
         this.album = album;
-        this.cover_url = cover_url;
-        this.audio_url = audio_url;
+        this.coverUrl = coverUrl;
+        this.audioUrl = audioUrl;
     }
 
     public TrackMetadata() {
@@ -32,8 +34,8 @@ public class TrackMetadata {
                 ", title='" + title + '\'' +
                 ", artist='" + artist + '\'' +
                 ", album='" + album + '\'' +
-                ", cover_url='" + cover_url + '\'' +
-                ", audio_url='" + audio_url + '\'' +
+                ", cover_url='" + coverUrl + '\'' +
+                ", audio_url='" + audioUrl + '\'' +
                 '}';
     }
 
@@ -53,11 +55,11 @@ public class TrackMetadata {
         return album;
     }
 
-    public String getCover_url() {
-        return cover_url;
+    public String getCoverUrl() {
+        return coverUrl;
     }
 
-    public String getAudio_url() {
-        return audio_url;
+    public String getAudioUrl() {
+        return audioUrl;
     }
 }

@@ -30,6 +30,8 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<String> refreshToken(@RequestBody RefreshRequest request) {
+        System.out.println("START REFRESH");
+
         if (!jwtService.validateToken(request.refreshToken()))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
