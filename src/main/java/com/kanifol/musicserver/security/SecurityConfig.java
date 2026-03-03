@@ -1,6 +1,5 @@
-package com.kanifol.musicserver.config;
+package com.kanifol.musicserver.security;
 
-import com.kanifol.musicserver.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -1,6 +1,6 @@
 package com.kanifol.musicserver.service;
 
-import com.kanifol.musicserver.repository.MusicRepository;
+import com.kanifol.musicserver.repository.TrackRepository;
 import com.kanifol.musicserver.repository.model.TrackMetadata;
 import com.kanifol.musicserver.repository.minio.MinioDatasource;
 import com.kanifol.musicserver.service.dto.TrackMetadataResponse;
@@ -17,21 +17,18 @@ import java.util.NoSuchElementException;
 @Service
 public class MusicService {
 
-    private final MusicRepository musicRepository;
+    private final TrackRepository trackRepository;
     private final MinioDatasource minioDatasource;
 
-    public MusicService(MusicRepository musicRepository, MinioDatasource minioDatasource) {
-        this.musicRepository = musicRepository;
+    public MusicService(TrackRepository trackRepository, MinioDatasource minioDatasource) {
+        this.trackRepository = trackRepository;
         this.minioDatasource = minioDatasource;
     }
 
     public ResponseEntity<StreamingResponseBody> findStreamById(Long id, String rangeHeader) {
-        TrackMetadata trackMetadata = musicRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Track with id " + id + " not found"));
-
-        String key = trackMetadata.getAudioUrl();
-
         long fileSize;
+        String key = TrackMetadata.toTrackUrl(id);
+
         try {
             fileSize = minioDatasource.getObjectSize(key);
         } catch (Exception e) {
@@ -79,20 +76,16 @@ public class MusicService {
     }
 
     public TrackMetadataResponse findMetaDataById(Long id) {
-        TrackMetadata trackMetadata = musicRepository.findById(id)
+        TrackMetadata trackMetadata = trackRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Track with id " + id + " not found"));
 
         return DtoMappers.toDto(trackMetadata);
     }
 
     public StreamingResponseBody findCoverById(Long id) {
-        TrackMetadata trackMetadata = musicRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Track with id " + id + " not found"));
-
-        String key = trackMetadata.getCoverUrl();
 
         return out -> {
-            try (InputStream stream = minioDatasource.coverStream(key)) {
+            try (InputStream stream = minioDatasource.coverStream(TrackMetadata.toCoverUrl(id))) {
                 stream.transferTo(out);
             } catch (Exception e) {
                 throw new RuntimeException(e);

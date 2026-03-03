@@ -54,8 +54,8 @@ public class UserService {
 
     @Transactional
     public Authentication login(LoginRequest loginRequest) {
-        User user = userRepository.findByUsername(loginRequest.username())
-                .orElseThrow(() -> new RuntimeException("Username Not Found"));
+        User user = getUserByUsername(loginRequest.username());
+
         if (!passwordEncoder.matches(loginRequest.password(), user.getPasswordHash())) {
             throw new BadCredentialsException("Wrong Password");
         }

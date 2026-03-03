@@ -2,6 +2,9 @@ package com.kanifol.musicserver.repository.model;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "track_metadata", schema = "music")
 public class TrackMetadata {
@@ -11,17 +14,20 @@ public class TrackMetadata {
     private String title;
     private String artist;
     private String album;
-    @Column(name = "cover_url")
-    private String coverUrl;
-    @Column(name = "audio_url")
-    private String audioUrl;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "track_genre",
+            schema = "music",
+            joinColumns = @JoinColumn(name = "track_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id")
+    )
+    private Set<Genre> genres = new HashSet<>();
 
-    public TrackMetadata(String title, String artist, String album, String coverUrl, String audioUrl) {
+    public TrackMetadata(String title, String artist, String album, Set<Genre> genres) {
         this.title = title;
         this.artist = artist;
         this.album = album;
-        this.coverUrl = coverUrl;
-        this.audioUrl = audioUrl;
+        this.genres = genres;
     }
 
     public TrackMetadata() {
@@ -34,8 +40,6 @@ public class TrackMetadata {
                 ", title='" + title + '\'' +
                 ", artist='" + artist + '\'' +
                 ", album='" + album + '\'' +
-                ", cover_url='" + coverUrl + '\'' +
-                ", audio_url='" + audioUrl + '\'' +
                 '}';
     }
 
@@ -55,11 +59,12 @@ public class TrackMetadata {
         return album;
     }
 
-    public String getCoverUrl() {
-        return coverUrl;
+    public static String toTrackUrl(Long id) {
+        return id.toString() + ".mp3";
     }
 
-    public String getAudioUrl() {
-        return audioUrl;
+    //TODO: нужно сделать поддержку других форматов
+    public static String toCoverUrl(Long id) {
+        return id.toString() + ".jpeg";
     }
 }
