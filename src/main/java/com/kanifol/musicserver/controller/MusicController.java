@@ -1,7 +1,7 @@
 package com.kanifol.musicserver.controller;
 
 import com.kanifol.musicserver.service.MusicService;
-import com.kanifol.musicserver.service.dto.TrackMetadataResponse;
+import com.kanifol.musicserver.service.dto.res.TrackMetadataResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

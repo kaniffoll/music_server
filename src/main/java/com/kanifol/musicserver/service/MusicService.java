@@ -3,7 +3,7 @@ package com.kanifol.musicserver.service;
 import com.kanifol.musicserver.repository.TrackRepository;
 import com.kanifol.musicserver.repository.model.TrackMetadata;
 import com.kanifol.musicserver.repository.minio.MinioDatasource;
-import com.kanifol.musicserver.service.dto.TrackMetadataResponse;
+import com.kanifol.musicserver.service.dto.res.TrackMetadataResponse;
 import com.kanifol.musicserver.service.mappers.DtoMappers;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

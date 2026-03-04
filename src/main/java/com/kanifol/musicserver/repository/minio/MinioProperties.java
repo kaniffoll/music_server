@@ -8,38 +8,45 @@ public class MinioProperties {
     private String accessKey;
     private String secretKey;
     private String endpoint;
-    private String bucket;
+    private String musicBucket;
+    private String coversBucket;
+
+    public String getMusicBucket() {
+        return musicBucket;
+    }
+
+    public String getCoversBucket() {
+        return coversBucket;
+    }
 
     public String getAccessKey() {
         return accessKey;
+    }
+    public String getSecretKey() {
+        return secretKey;
+    }
+    public String getEndpoint() {
+        return endpoint;
     }
 
     public void setAccessKey(String accessKey) {
         this.accessKey = accessKey;
     }
 
-    public String getSecretKey() {
-        return secretKey;
-    }
-
     public void setSecretKey(String secretKey) {
         this.secretKey = secretKey;
-    }
-
-    public String getEndpoint() {
-        return endpoint;
     }
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
     }
 
-    public String getBucket() {
-        return bucket;
+    public void setMusicBucket(String musicBucket) {
+        this.musicBucket = musicBucket;
     }
 
-    public void setBucket(String bucket) {
-        this.bucket = bucket;
+    public void setCoversBucket(String coversBucket) {
+        this.coversBucket = coversBucket;
     }
 }
 

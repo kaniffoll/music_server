@@ -16,19 +16,17 @@ import java.util.NoSuchElementException;
 @Component
 public class MinioDatasource {
     private final MinioClient minioClient;
-    private final String musicBucket;
-    private final String coversBucket;
+    private final MinioProperties minioProperties;
 
-    public MinioDatasource(@Value("${minio.music-bucket}") String musicBucket, @Value("${minio.covers-bucket}") String coversBucket, MinioClient minioClient) {
-        this.musicBucket = musicBucket;
+    public MinioDatasource(MinioClient minioClient, MinioProperties minioProperties) {
         this.minioClient = minioClient;
-        this.coversBucket = coversBucket;
+        this.minioProperties = minioProperties;
     }
 
     public InputStream audioStream(String key, long offset, long length) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         return minioClient.getObject(GetObjectArgs
                 .builder()
-                .bucket(musicBucket)
+                .bucket(minioProperties.getMusicBucket())
                 .offset(offset)
                 .length(length)
                 .object(key)
@@ -39,7 +37,7 @@ public class MinioDatasource {
         return minioClient.statObject(
                 StatObjectArgs
                         .builder()
-                        .bucket(musicBucket)
+                        .bucket(minioProperties.getMusicBucket())
                         .object(key)
                         .build()
         ).size();
@@ -51,7 +49,7 @@ public class MinioDatasource {
 
         return minioClient.getObject(GetObjectArgs
                 .builder()
-                .bucket(coversBucket)
+                .bucket(minioProperties.getCoversBucket())
                 .object(key)
                 .build()
         );

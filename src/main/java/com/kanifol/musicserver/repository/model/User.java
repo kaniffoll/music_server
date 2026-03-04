@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -27,6 +28,22 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_genres",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id")
+    )
+    private Set<Genre> genres = new HashSet<>();
+
+    public Set<Genre> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(Set<Genre> genres) {
+        this.genres = genres;
+    }
+
     public User(String username, String email, String passwordHash) {
         this.username = username;
         this.email = email;
@@ -43,6 +60,8 @@ public class User {
     public void setRoles(Set<Role> roles) { this.roles = roles; }
 
     public List<String> getRolesNames() { return roles.stream().map(Role::getName).toList(); }
+
+    public Set<String> getGenresNames() { return genres.stream().map(Genre::toString).collect(Collectors.toSet()); }
 
     public Long getId() {
         return id;

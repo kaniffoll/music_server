@@ -1,6 +1,6 @@
 package com.kanifol.musicserver.service;
 
-import com.kanifol.musicserver.service.dto.TokenResponse;
+import com.kanifol.musicserver.service.dto.res.TokenResponse;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
