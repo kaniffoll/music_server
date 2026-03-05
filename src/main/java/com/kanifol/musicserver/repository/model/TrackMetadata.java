@@ -13,7 +13,11 @@ public class TrackMetadata {
     private Long id;
     private String title;
     private String artist;
-    private String album;
+    @Column(name = "track_number")
+    private Short trackNumber;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "album_id")
+    private Album album;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "track_genre",
@@ -22,14 +26,17 @@ public class TrackMetadata {
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
     private Set<Genre> genres = new HashSet<>();
-
-    public TrackMetadata(String title, String artist, String album, Set<Genre> genres) {
-        this.title = title;
-        this.artist = artist;
-        this.album = album;
-        this.genres = genres;
+    public Album getAlbum() {
+        return album;
     }
 
+    public TrackMetadata(String title, String artist, Short trackNumber, Set<Genre> genres, Album album) {
+        this.title = title;
+        this.artist = artist;
+        this.trackNumber = trackNumber;
+        this.genres = genres;
+        this.album = album;
+    }
     public TrackMetadata() {
     }
 
@@ -39,7 +46,6 @@ public class TrackMetadata {
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", artist='" + artist + '\'' +
-                ", album='" + album + '\'' +
                 '}';
     }
 
@@ -55,16 +61,11 @@ public class TrackMetadata {
         return artist;
     }
 
-    public String getAlbum() {
-        return album;
+    public Short getTrackNumber() {
+        return trackNumber;
     }
 
-    public static String toTrackUrl(Long id) {
-        return id.toString() + ".mp3";
-    }
-
-    //TODO: нужно сделать поддержку других форматов
-    public static String toCoverUrl(Long id) {
-        return id.toString() + ".jpeg";
+    public static String toTrackUrl(Long albumId, Short trackNumber) {
+        return albumId.toString() + "/" + trackNumber.toString() + ".mp3";
     }
 }

@@ -2,6 +2,7 @@ package com.kanifol.musicserver.controller;
 
 import com.kanifol.musicserver.service.UserGenresService;
 import com.kanifol.musicserver.service.dto.req.AddGenresRequest;
+import com.kanifol.musicserver.service.dto.req.RemoveGenreRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Set;
@@ -16,13 +17,13 @@ public class UserGenresController {
         this.userGenresService = userGenresService;
     }
 
-    @PostMapping(path = "{id}/remove_genre")
+    @DeleteMapping(path = "{id}/remove_genre")
     public ResponseEntity<Void> removeGenreForUser(
-            String genreName,
+            @RequestBody RemoveGenreRequest removeGenreRequest,
             @PathVariable("id") Long userId
     ) {
         try {
-            userGenresService.removeGenreForUser(genreName, userId);
+            userGenresService.removeGenreForUser(removeGenreRequest.genreName(), userId);
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();

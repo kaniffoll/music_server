@@ -24,13 +24,10 @@ public class UserGenresService {
 
     @Transactional
     public void addGenresForUser(Set<String> genresNames, Long userId) {
-        System.out.println(genresNames);
         List<Genre> genres = genreRepository.findByNameIn(genresNames);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        System.out.println("LOG FROM USERGENRES" + genres.toString());
 
         user.getGenres().addAll(genres);
         userRepository.save(user);

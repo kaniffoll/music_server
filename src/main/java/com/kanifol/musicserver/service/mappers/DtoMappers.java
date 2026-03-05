@@ -6,9 +6,11 @@ import com.kanifol.musicserver.service.dto.res.TrackMetadataResponse;
 public class DtoMappers {
     public static TrackMetadataResponse toDto(TrackMetadata trackMetadata) {
         return new TrackMetadataResponse(
+                trackMetadata.getId(),
                 trackMetadata.getTitle(),
                 trackMetadata.getArtist(),
-                trackMetadata.getAlbum()
+                trackMetadata.getAlbum().getId(),
+                trackMetadata.getTrackNumber()
         );
     }
 }

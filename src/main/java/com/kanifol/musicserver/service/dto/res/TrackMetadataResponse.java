@@ -1,7 +1,9 @@
 package com.kanifol.musicserver.service.dto.res;
 
 public record TrackMetadataResponse(
+        Long id,
         String title,
         String artist,
-        String album
+        Long albumId,
+        Short trackNumber
 ) { }
