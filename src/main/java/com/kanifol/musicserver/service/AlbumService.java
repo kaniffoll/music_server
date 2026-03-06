@@ -5,6 +5,7 @@ import com.kanifol.musicserver.repository.minio.MinioStreamProvider;
 import com.kanifol.musicserver.repository.model.Album;
 import com.kanifol.musicserver.repository.model.TrackMetadata;
 import com.kanifol.musicserver.repository.minio.MinioDatasource;
+import com.kanifol.musicserver.service.dto.res.AlbumResponse;
 import com.kanifol.musicserver.service.dto.res.TrackMetadataResponse;
 import com.kanifol.musicserver.service.mappers.DtoMappers;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +66,12 @@ public class AlbumService {
                 .sorted(Comparator.comparing(TrackMetadata::getTrackNumber))
                 .map(DtoMappers::toDto)
                 .toList();
+    }
+
+    public List<AlbumResponse> findAlbumsByName(String albumName) {
+        List<Album> albums = albumRepository.findByNameContaining(albumName)
+                .orElseThrow(() -> new NoSuchElementException("No album with name " + albumName));
+        return albums.stream().map(DtoMappers::toDto).toList();
     }
 
     private Album findAlbumById(Long albumId) {
