@@ -3,6 +3,7 @@ package com.kanifol.musicserver.repository.model;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -30,13 +31,12 @@ public class TrackMetadata {
         return album;
     }
 
-    public TrackMetadata(String title, String artist, Short trackNumber, Set<Genre> genres, Album album) {
+    public TrackMetadata(String title, String artist, Short trackNumber) {
         this.title = title;
         this.artist = artist;
         this.trackNumber = trackNumber;
-        this.genres = genres;
-        this.album = album;
     }
+
     public TrackMetadata() {
     }
 
@@ -47,6 +47,14 @@ public class TrackMetadata {
                 ", title='" + title + '\'' +
                 ", artist='" + artist + '\'' +
                 '}';
+    }
+
+    public void setGenres(Set<Genre> genres) {
+        this.genres = genres;
+    }
+
+    public void setAlbum(Album album) {
+        this.album = album;
     }
 
     public Long getId() {
@@ -67,5 +75,16 @@ public class TrackMetadata {
 
     public static String toTrackUrl(Long albumId, Short trackNumber) {
         return albumId.toString() + "/" + trackNumber.toString() + ".mp3";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof TrackMetadata that)) return false;
+        return Objects.equals(getTitle(), that.getTitle()) && Objects.equals(getArtist(), that.getArtist()) && Objects.equals(getTrackNumber(), that.getTrackNumber());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTitle(), getArtist(), getTrackNumber());
     }
 }

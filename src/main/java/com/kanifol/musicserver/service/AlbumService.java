@@ -68,9 +68,9 @@ public class AlbumService {
                 .toList();
     }
 
-    public List<AlbumResponse> findAlbumsByName(String albumName) {
-        List<Album> albums = albumRepository.findByNameContaining(albumName)
-                .orElseThrow(() -> new NoSuchElementException("No album with name " + albumName));
+    public List<AlbumResponse> findAlbumsByTitle(String title) {
+        List<Album> albums = albumRepository.findByTitleContaining(title)
+                .orElseThrow(() -> new NoSuchElementException("No album with name " + title));
         return albums.stream().map(DtoMappers::toDto).toList();
     }
 

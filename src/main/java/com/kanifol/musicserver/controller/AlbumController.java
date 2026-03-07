@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping(path = "album/")
 public class AlbumController {
 
-    AlbumService albumService;
+    private final AlbumService albumService;
 
     public AlbumController(AlbumService albumService) {
         this.albumService = albumService;

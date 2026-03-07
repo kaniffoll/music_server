@@ -2,6 +2,7 @@ package com.kanifol.musicserver.repository.minio;
 
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import io.minio.StatObjectArgs;
 import io.minio.errors.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,11 +48,24 @@ public class MinioDatasource {
         if (key == null || key.isBlank())
             throw new NoSuchElementException("No element found for key: " + key);
 
-        return minioClient.getObject(GetObjectArgs
-                .builder()
-                .bucket(minioProperties.getCoversBucket())
-                .object(key)
-                .build()
+        return minioClient.getObject(
+                GetObjectArgs
+                        .builder()
+                        .bucket(minioProperties.getCoversBucket())
+                        .object(key)
+                        .build()
+        );
+    }
+
+    public void uploadTrack(InputStream inputStream, Long size, String key) throws Exception {
+        minioClient.putObject(
+                PutObjectArgs
+                        .builder()
+                        .bucket(minioProperties.getMusicBucket())
+                        .object(key)
+                        .stream(inputStream, size, -1)
+                        .contentType("audio/mp3")
+                        .build()
         );
     }
 }

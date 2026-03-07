@@ -36,10 +36,10 @@ public class FindController {
         return ResponseEntity.ok(trackService.findTracksByTitle(title));
     }
 
-    @GetMapping(path = "album/{name}")
-    public ResponseEntity<List<AlbumResponse>> findAlbumsByName(@PathVariable String name) {
+    @GetMapping(path = "album/{title}")
+    public ResponseEntity<List<AlbumResponse>> findAlbumsByTitle(@PathVariable String title) {
         try {
-            return ResponseEntity.ok(albumService.findAlbumsByName(name));
+            return ResponseEntity.ok(albumService.findAlbumsByTitle(title));
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }

@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface TrackRepository extends JpaRepository<TrackMetadata, Long> {
     Optional<List<TrackMetadata>> findByTitleContaining(String title);
+    boolean existsByAlbumIdAndTrackNumber(Long albumId, Short trackNumber);
 }

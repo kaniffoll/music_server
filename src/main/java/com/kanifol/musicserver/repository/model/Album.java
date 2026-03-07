@@ -11,11 +11,15 @@ public class Album {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    private String title;
     @OneToMany(mappedBy = "album")
     private Set<TrackMetadata> tracksMetadataSet = new HashSet<>();
 
     public Album() {
+    }
+
+    public Album(String title) {
+        this.title = title;
     }
 
     public Set<TrackMetadata> getTracksMetadataSet() {
@@ -26,8 +30,8 @@ public class Album {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
     //TODO: формат фото захардкожен
