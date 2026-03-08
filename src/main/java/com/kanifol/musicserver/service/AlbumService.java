@@ -69,8 +69,10 @@ public class AlbumService {
     }
 
     public List<AlbumResponse> findAlbumsByTitle(String title) {
-        List<Album> albums = albumRepository.findByTitleContaining(title)
-                .orElseThrow(() -> new NoSuchElementException("No album with name " + title));
+        List<Album> albums = albumRepository.findByTitleContaining(title);
+        if  (albums.isEmpty())
+            throw new NoSuchElementException("Albums containing " + title + " not found");
+
         return albums.stream().map(DtoMappers::toDto).toList();
     }
 

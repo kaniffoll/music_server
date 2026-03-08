@@ -7,5 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AlbumRepository extends JpaRepository<Album, Long> {
-    Optional<List<Album>> findByTitleContaining(String title);
+    List<Album> findByTitleContaining(String title);
+    Optional<Album> findByTitle(String title);
 }

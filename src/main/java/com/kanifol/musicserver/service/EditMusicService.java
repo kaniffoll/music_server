@@ -1,4 +1,4 @@
-package com.kanifol.musicserver.service.dto;
+package com.kanifol.musicserver.service;
 
 import com.kanifol.musicserver.repository.AlbumRepository;
 import com.kanifol.musicserver.repository.GenreRepository;
@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -66,5 +67,31 @@ public class EditMusicService {
             trackRepository.delete(trackMetadata);
             throw e;
         }
+    }
+
+    public void createAlbum(String title) {
+        Optional<Album> album = albumRepository.findByTitle(title);
+        if (album.isPresent())
+            throw new IllegalStateException("Album already exists");
+
+        albumRepository.save(new Album(title));
+    }
+
+    @Transactional
+    public void deleteTrack(Long id) throws Exception {
+        TrackMetadata trackMetadata = trackRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Track not found"));
+        String key = TrackMetadata.toTrackUrl(trackMetadata.getAlbum().getId(), trackMetadata.getTrackNumber());
+        trackRepository.delete(trackMetadata);
+        minioDatasource.deleteTrack(key);
+    }
+
+    @Transactional
+    public void deleteAlbum(Long id) throws Exception {
+        Album album = albumRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Album not found"));
+        String prefix = id + "/";
+        albumRepository.delete(album);
+        minioDatasource.deleteAlbum(prefix);
     }
 }
