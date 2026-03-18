@@ -13,7 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -54,18 +57,51 @@ public class EditMusicService {
         trackMetadata.setAlbum(album);
         trackMetadata.setGenres(genres);
 
-        String key = TrackMetadata.toTrackUrl(album.getId(), trackMetadata.getTrackNumber());
+        File mainFile = File.createTempFile("tmp", ".mp3");
+        file.transferTo(mainFile);
+
+        File previewFile = File.createTempFile("preview", ".mp3");
+        ProcessBuilder pb = new ProcessBuilder(
+                "ffmpeg",
+                "-y",–
+                "-i", mainFile.getAbsolutePath(),
+                "-ss", request.previewTimeStart(),
+                "-t", "30",
+                "-c", "copy",
+                previewFile.getAbsolutePath()
+        );
+
+        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+
+        Process process = pb.start();
+        int exitCode = process.waitFor();
+        if (exitCode != 0) {
+            throw new RuntimeException("Process returned non-zero exit code: " + exitCode);
+        }
+
+        String previewKey = TrackMetadata.toTrackPreviewUrl(album.getId(), trackMetadata.getTrackNumber());
+        String mainKey = TrackMetadata.toTrackUrl(album.getId(), trackMetadata.getTrackNumber());
         trackRepository.save(trackMetadata);
 
-        try (InputStream inputStream = file.getInputStream()) {
+        try (InputStream inputStream = new FileInputStream(mainFile);
+             InputStream previewStream = new FileInputStream(previewFile)) {
             minioDatasource.uploadTrack(
                     inputStream,
-                    file.getSize(),
-                    key
+                    mainFile.length(),
+                    mainKey
+            );
+            minioDatasource.uploadTrack(
+                    previewStream,
+                    previewFile.length(),
+                    previewKey
             );
         } catch (Exception e) {
             trackRepository.delete(trackMetadata);
             throw e;
+        } finally {
+            Files.deleteIfExists(mainFile.toPath());
+            Files.deleteIfExists(previewFile.toPath());
         }
     }
 

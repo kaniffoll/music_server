@@ -56,6 +56,4 @@ public class AlbumController {
             return ResponseEntity.notFound().build();
         }
     }
-
-
 }

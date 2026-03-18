@@ -13,7 +13,6 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/find")
 public class FindController {
-
     private final TrackService trackService;
     private final AlbumService albumService;
     public FindController(TrackService trackService, AlbumService albumService) {
@@ -28,6 +27,8 @@ public class FindController {
     ) {
         return trackService.findStreamById(id, range);
     }
+
+    //TODO: проверить почему сигнатура методов отличается
 
     @GetMapping(path = "/track/{title}")
     public ResponseEntity<List<TrackMetadataResponse>> findTracksByName(

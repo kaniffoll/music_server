@@ -10,9 +10,7 @@ import java.util.Set;
 @RestController
 @RequestMapping(path = "user/")
 public class UserGenresController {
-
     private final UserGenresService userGenresService;
-
     public UserGenresController(UserGenresService userGenresService) {
         this.userGenresService = userGenresService;
     }

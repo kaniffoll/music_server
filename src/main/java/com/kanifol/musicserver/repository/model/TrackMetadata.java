@@ -77,6 +77,10 @@ public class TrackMetadata {
         return albumId.toString() + "/" + trackNumber.toString() + ".mp3";
     }
 
+    public static String toTrackPreviewUrl(Long albumId, Short trackNumber) {
+        return albumId.toString() + "/" + trackNumber.toString() + "preview.mp3";
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof TrackMetadata that)) return false;

@@ -7,6 +7,7 @@ public record UploadTrackMetadataRequest(
         String artist,
         Short trackNumber,
         Long albumId,
-        Set<String> genres
+        Set<String> genres,
+        String previewTimeStart
 ) {
 }

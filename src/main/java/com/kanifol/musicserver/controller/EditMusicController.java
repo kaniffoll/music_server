@@ -3,16 +3,13 @@ package com.kanifol.musicserver.controller;
 import com.kanifol.musicserver.service.EditMusicService;
 import com.kanifol.musicserver.service.dto.req.UploadTrackMetadataRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping(path = "upload/")
+@RequestMapping(path = "edit/")
 public class EditMusicController {
-
     private final EditMusicService editMusicService;
-
     public EditMusicController(EditMusicService editMusicService) {
         this.editMusicService = editMusicService;
     }
@@ -23,6 +20,7 @@ public class EditMusicController {
             @RequestPart("metadata") UploadTrackMetadataRequest uploadTrackMetadataRequest
     ) {
         try {
+            System.out.println("STARTING UPLOAD TRACK");
             editMusicService.uploadTrack(file, uploadTrackMetadataRequest);
             return ResponseEntity.ok("Track uploaded");
         } catch (Exception e) {
