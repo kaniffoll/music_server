@@ -20,7 +20,6 @@ public class EditMusicController {
             @RequestPart("metadata") UploadTrackMetadataRequest uploadTrackMetadataRequest
     ) {
         try {
-            System.out.println("STARTING UPLOAD TRACK");
             editMusicService.uploadTrack(file, uploadTrackMetadataRequest);
             return ResponseEntity.ok("Track uploaded");
         } catch (Exception e) {

@@ -6,14 +6,15 @@ import com.kanifol.musicserver.repository.minio.MinioStreamProvider;
 import com.kanifol.musicserver.repository.model.TrackMetadata;
 import com.kanifol.musicserver.service.dto.res.TrackMetadataResponse;
 import com.kanifol.musicserver.service.mappers.DtoMappers;
+import com.kanifol.musicserver.service.model.TrackKeyType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import static com.kanifol.musicserver.service.model.TrackKeyType.MAIN;
 
 @Service
 public class TrackService {
@@ -26,10 +27,17 @@ public class TrackService {
         this.minioDatasource = minioDatasource;
     }
 
-    public ResponseEntity<StreamingResponseBody> findStreamById(Long id, String rangeHeader) {
+    public ResponseEntity<StreamingResponseBody> findStreamById(
+            Long id,
+            String rangeHeader,
+            TrackKeyType trackKeyType
+    ) {
         TrackMetadata trackMetadata = trackRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No track with " + id));
-        String key = TrackMetadata.toTrackUrl(trackMetadata.getAlbum().getId(), trackMetadata.getTrackNumber());
+        Long albumId = trackMetadata.getAlbum().getId();
+        Short trackNumber = trackMetadata.getTrackNumber();
+        String key = trackKeyType == MAIN ? TrackMetadata.toTrackUrl(albumId, trackNumber) :
+                TrackMetadata.toTrackPreviewUrl(albumId, trackNumber);
         try {
             return MinioStreamProvider.getStreamByKey(key, rangeHeader, minioDatasource);
         } catch (Exception e) {

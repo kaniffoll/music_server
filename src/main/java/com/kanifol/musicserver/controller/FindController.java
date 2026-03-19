@@ -4,6 +4,7 @@ import com.kanifol.musicserver.service.AlbumService;
 import com.kanifol.musicserver.service.TrackService;
 import com.kanifol.musicserver.service.dto.res.AlbumResponse;
 import com.kanifol.musicserver.service.dto.res.TrackMetadataResponse;
+import com.kanifol.musicserver.service.model.TrackKeyType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -15,6 +16,7 @@ import java.util.List;
 public class FindController {
     private final TrackService trackService;
     private final AlbumService albumService;
+
     public FindController(TrackService trackService, AlbumService albumService) {
         this.trackService = trackService;
         this.albumService = albumService;
@@ -25,10 +27,16 @@ public class FindController {
             @PathVariable Long id,
             @RequestHeader(value = "Range", required = false) String range
     ) {
-        return trackService.findStreamById(id, range);
+        return trackService.findStreamById(id, range, TrackKeyType.MAIN);
     }
 
     //TODO: проверить почему сигнатура методов отличается
+    @GetMapping(path = "/snippet/{id}")
+    public ResponseEntity<StreamingResponseBody> findSnippet(
+            @PathVariable Long id
+    ) {
+        return trackService.findStreamById(id, null, TrackKeyType.PREVIEW);
+    }
 
     @GetMapping(path = "/track/{title}")
     public ResponseEntity<List<TrackMetadataResponse>> findTracksByName(

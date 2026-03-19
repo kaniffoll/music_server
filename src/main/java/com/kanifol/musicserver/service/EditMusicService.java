@@ -63,7 +63,7 @@ public class EditMusicService {
         File previewFile = File.createTempFile("preview", ".mp3");
         ProcessBuilder pb = new ProcessBuilder(
                 "ffmpeg",
-                "-y",–
+                "-y",
                 "-i", mainFile.getAbsolutePath(),
                 "-ss", request.previewTimeStart(),
                 "-t", "30",
