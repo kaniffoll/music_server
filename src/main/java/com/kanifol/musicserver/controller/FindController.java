@@ -6,6 +6,8 @@ import com.kanifol.musicserver.service.dto.res.AlbumResponse;
 import com.kanifol.musicserver.service.dto.res.TrackMetadataResponse;
 import com.kanifol.musicserver.service.model.TrackKeyType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -49,6 +51,16 @@ public class FindController {
     public ResponseEntity<List<AlbumResponse>> findAlbumsByTitle(@PathVariable String title) {
         try {
             return ResponseEntity.ok(albumService.findAlbumsByTitle(title));
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping(path = "/snippet/batch")
+    public ResponseEntity<List<TrackMetadataResponse>> findSnippetsMetadata(Authentication authentication) {
+        try {
+            return ResponseEntity.ok(trackService.findTracksBatchByUserGenres(authentication.getName()));
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
