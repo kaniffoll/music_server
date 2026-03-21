@@ -1,97 +1,111 @@
 package com.kanifol.musicserver.repository.minio;
 
+import com.kanifol.musicserver.repository.minio.exc.*;
 import io.minio.*;
-import io.minio.errors.*;
 import io.minio.messages.Item;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.NoSuchElementException;
 
 @Component
 public class MinioDatasource {
     private final MinioClient minioClient;
     private final MinioProperties minioProperties;
-
     public MinioDatasource(MinioClient minioClient, MinioProperties minioProperties) {
         this.minioClient = minioClient;
         this.minioProperties = minioProperties;
     }
 
-    public InputStream audioStream(String key, long offset, long length) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public InputStream audioStream(String key, long offset, long length) {
         if (key == null || key.isBlank())
-            throw new NoSuchElementException("No element found for key: " + key);
+            throw new EmptyMinioKeyException();
 
-        return minioClient.getObject(GetObjectArgs
-                .builder()
-                .bucket(minioProperties.getMusicBucket())
-                .offset(offset)
-                .length(length)
-                .object(key)
-                .build());
+        try {
+            return minioClient.getObject(GetObjectArgs
+                    .builder()
+                    .bucket(minioProperties.getMusicBucket())
+                    .offset(offset)
+                    .length(length)
+                    .object(key)
+                    .build());
+        } catch (Exception e) {
+            throw new GetObjectException();
+        }
     }
 
-    public long getObjectSize(String key) throws Exception {
+    public long getObjectSize(String key) {
         if (key == null || key.isBlank())
-            throw new NoSuchElementException("No element found for key: " + key);
+            throw new EmptyMinioKeyException();
 
-        return minioClient.statObject(
-                StatObjectArgs
-                        .builder()
-                        .bucket(minioProperties.getMusicBucket())
-                        .object(key)
-                        .build()
-        ).size();
+        try {
+            return minioClient.statObject(
+                    StatObjectArgs
+                            .builder()
+                            .bucket(minioProperties.getMusicBucket())
+                            .object(key)
+                            .build()
+            ).size();
+        } catch (Exception e) {
+            throw new GetObjectException();
+        }
     }
 
-    public InputStream coverStream(String key) throws Exception {
+    public InputStream coverStream(String key) {
         if (key == null || key.isBlank())
-            throw new NoSuchElementException("No element found for key: " + key);
+            throw new EmptyMinioKeyException();
 
-        return minioClient.getObject(
-                GetObjectArgs
-                        .builder()
-                        .bucket(minioProperties.getCoversBucket())
-                        .object(key)
-                        .build()
-        );
+        try {
+            return minioClient.getObject(
+                    GetObjectArgs
+                            .builder()
+                            .bucket(minioProperties.getCoversBucket())
+                            .object(key)
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new GetObjectException();
+        }
     }
 
-    public void uploadTrack(InputStream inputStream, Long size, String key) throws Exception {
+    public void uploadTrack(InputStream inputStream, Long size, String key) {
         if (key == null || key.isBlank())
-            throw new NoSuchElementException("No element found for key: " + key);
+            throw new EmptyMinioKeyException();
 
-        minioClient.putObject(
-                PutObjectArgs
-                        .builder()
-                        .bucket(minioProperties.getMusicBucket())
-                        .object(key)
-                        .stream(inputStream, size, -1)
-                        .contentType("audio/mp3")
-                        .build()
-        );
+        try {
+            minioClient.putObject(
+                    PutObjectArgs
+                            .builder()
+                            .bucket(minioProperties.getMusicBucket())
+                            .object(key)
+                            .stream(inputStream, size, -1)
+                            .contentType("audio/mp3")
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new PutObjectException();
+        }
     }
 
-    public void deleteTrack(String key) throws Exception {
+    public void deleteTrack(String key) {
         if (key == null || key.isBlank())
-            throw new NoSuchElementException("No element found for key: " + key);
+            throw new EmptyMinioKeyException();
 
-        minioClient.removeObject(
-                RemoveObjectArgs
-                        .builder()
-                        .bucket(minioProperties.getMusicBucket())
-                        .object(key)
-                        .build()
-        );
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs
+                            .builder()
+                            .bucket(minioProperties.getMusicBucket())
+                            .object(key)
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new DeleteObjectException();
+        }
     }
 
-    public void deleteAlbum(String prefix) throws Exception {
+    public void deleteAlbum(String prefix) {
         if (prefix == null || prefix.isBlank())
-            throw new NoSuchElementException("No element found with prefix: " + prefix);
+            throw new EmptyMinioPrefixException();
 
         Iterable<Result<Item>> results = minioClient.listObjects(
                 ListObjectsArgs
@@ -101,16 +115,20 @@ public class MinioDatasource {
                         .build()
         );
 
-        for (Result<Item> result : results) {
-            Item item = result.get();
+        try {
+            for (Result<Item> result : results) {
+                Item item = result.get();
 
-            minioClient.removeObject(
-                    RemoveObjectArgs
-                            .builder()
-                            .bucket(minioProperties.getMusicBucket())
-                            .object(item.objectName())
-                            .build()
-            );
+                minioClient.removeObject(
+                        RemoveObjectArgs
+                                .builder()
+                                .bucket(minioProperties.getMusicBucket())
+                                .object(item.objectName())
+                                .build()
+                );
+            }
+        } catch (Exception e) {
+            throw new DeleteObjectException();
         }
     }
 }

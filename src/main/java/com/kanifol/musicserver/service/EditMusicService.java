@@ -8,6 +8,7 @@ import com.kanifol.musicserver.repository.model.Album;
 import com.kanifol.musicserver.repository.model.Genre;
 import com.kanifol.musicserver.repository.model.TrackMetadata;
 import com.kanifol.musicserver.service.dto.req.UploadTrackMetadataRequest;
+import com.kanifol.musicserver.service.exc.UploadTrackProcessException;
 import com.kanifol.musicserver.service.mappers.DtoMappers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.HashSet;
@@ -41,7 +43,7 @@ public class EditMusicService {
     public void uploadTrack(
             MultipartFile file,
             UploadTrackMetadataRequest request
-    ) throws Exception {
+    ) throws IOException {
         TrackMetadata trackMetadata = DtoMappers.toModel(request);
         Album album = albumRepository.findById(request.albumId())
                 .orElseThrow(() -> new NoSuchElementException("Album not found"));
@@ -75,9 +77,13 @@ public class EditMusicService {
         pb.redirectError(ProcessBuilder.Redirect.INHERIT);
 
         Process process = pb.start();
-        int exitCode = process.waitFor();
-        if (exitCode != 0) {
-            throw new RuntimeException("Process returned non-zero exit code: " + exitCode);
+
+        try {
+            int exitCode = process.waitFor();
+            if (exitCode != 0)
+                throw new RuntimeException("Process returned non-zero exit code: " + exitCode);
+        } catch (Exception e) {
+            throw new UploadTrackProcessException(e.getMessage());
         }
 
         String previewKey = TrackMetadata.toTrackPreviewUrl(album.getId(), trackMetadata.getTrackNumber());
@@ -114,7 +120,7 @@ public class EditMusicService {
     }
 
     @Transactional
-    public void deleteTrack(Long id) throws Exception {
+    public void deleteTrack(Long id) {
         TrackMetadata trackMetadata = trackRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Track not found"));
         String key = TrackMetadata.toTrackUrl(trackMetadata.getAlbum().getId(), trackMetadata.getTrackNumber());
@@ -123,7 +129,7 @@ public class EditMusicService {
     }
 
     @Transactional
-    public void deleteAlbum(Long id) throws Exception {
+    public void deleteAlbum(Long id) {
         Album album = albumRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Album not found"));
         String prefix = id + "/";

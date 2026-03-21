@@ -10,8 +10,11 @@ import java.io.InputStream;
 
 @Component
 public class MinioStreamProvider {
-
-    public static ResponseEntity<StreamingResponseBody> getStreamByKey(String key, String rangeHeader, MinioDatasource minioDatasource) throws Exception {
+    public static ResponseEntity<StreamingResponseBody> getStreamByKey(
+            String key,
+            String rangeHeader,
+            MinioDatasource minioDatasource
+    ) {
         long fileSize = minioDatasource.getObjectSize(key);
         long start;
         long end = fileSize - 1;
@@ -41,15 +44,18 @@ public class MinioStreamProvider {
             }
         };
 
+        return ResponseEntity
+                .status(rangeHeader == null ? 200 : 206)
+                .headers(getHeaders(contentLength, start, end, fileSize))
+                .body(body);
+    }
+
+    private static HttpHeaders getHeaders(Long contentLength, Long start, Long end, Long fileSize) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.valueOf("audio/mpeg"));
         headers.setContentLength(contentLength);
         headers.set("Accept-Ranges", "bytes");
         headers.set("Content-Range", "bytes " + start + "-" + end + "/" + fileSize);
-
-        return ResponseEntity
-                .status(rangeHeader == null ? 200 : 206)
-                .headers(headers)
-                .body(body);
+        return headers;
     }
 }

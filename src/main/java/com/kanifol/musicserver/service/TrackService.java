@@ -8,6 +8,8 @@ import com.kanifol.musicserver.repository.minio.MinioStreamProvider;
 import com.kanifol.musicserver.repository.model.Genre;
 import com.kanifol.musicserver.repository.model.TrackMetadata;
 import com.kanifol.musicserver.service.dto.res.TrackMetadataResponse;
+import com.kanifol.musicserver.service.exc.NoSuchTrackException;
+import com.kanifol.musicserver.service.exc.NoSuchUserException;
 import com.kanifol.musicserver.service.mappers.DtoMappers;
 import com.kanifol.musicserver.service.model.TrackKeyType;
 import org.apache.commons.lang3.RandomUtils;
@@ -16,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,7 @@ public class TrackService {
             TrackKeyType trackKeyType
     ) {
         TrackMetadata trackMetadata = trackRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No track with " + id));
+                .orElseThrow(() -> new NoSuchTrackException(id));
         Long albumId = trackMetadata.getAlbum().getId();
         Short trackNumber = trackMetadata.getTrackNumber();
         String key = trackKeyType == MAIN ? TrackMetadata.toTrackUrl(albumId, trackNumber) :
@@ -56,14 +57,14 @@ public class TrackService {
         try {
             return MinioStreamProvider.getStreamByKey(key, rangeHeader, minioDatasource);
         } catch (Exception e) {
-            throw new NoSuchElementException("No track with " + id);
+            throw new NoSuchTrackException(id);
         }
     }
 
     public List<TrackMetadataResponse> findTracksByTitle(String title) {
         List<TrackMetadata> trackMetadataList = trackRepository.findByTitleContaining(title);
         if (trackMetadataList.isEmpty())
-            throw new NoSuchElementException("No track with " + title);
+            throw new NoSuchTrackException(title);
         return trackMetadataList
                 .stream()
                 .map(DtoMappers::toDto)
@@ -75,7 +76,7 @@ public class TrackService {
         if (genres.isEmpty()) {
             genres = userRepository
                     .findByUsername(username)
-                    .orElseThrow(() -> new NoSuchElementException("No user with username" + username))
+                    .orElseThrow(() -> new NoSuchUserException(username))
                     .getGenres()
                     .stream()
                     .map(Genre::toString)
@@ -100,10 +101,6 @@ public class TrackService {
         if (trackMetadataList.isEmpty()) {
             trackMetadataList = trackRepository.findTrackBatchLower(usedIds, genres, random);
         }
-
-        System.out.println(random);
-        System.out.println(trackMetadataList);
-        System.out.println(usedIds);
 
         redisRepository.addUsedIdsForUser(
                 username,

@@ -13,9 +13,7 @@ import java.util.List;
 @RestController()
 @RequestMapping(path = "album/")
 public class AlbumController {
-
     private final AlbumService albumService;
-
     public AlbumController(AlbumService albumService) {
         this.albumService = albumService;
     }
@@ -50,10 +48,6 @@ public class AlbumController {
     public ResponseEntity<List<TrackMetadataResponse>> findTracksByAlbumId(
             @PathVariable Long albumId
     ) {
-        try {
-            return ResponseEntity.ok(albumService.findTracksByAlbumId(albumId));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(albumService.findTracksByAlbumId(albumId));
     }
 }

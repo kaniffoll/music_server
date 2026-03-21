@@ -4,11 +4,12 @@ import com.kanifol.musicserver.repository.GenreRepository;
 import com.kanifol.musicserver.repository.UserRepository;
 import com.kanifol.musicserver.repository.model.Genre;
 import com.kanifol.musicserver.repository.model.User;
+import com.kanifol.musicserver.service.exc.NoSuchGenreException;
+import com.kanifol.musicserver.service.exc.NoSuchUserException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ public class UserGenresService {
         List<Genre> genres = genreRepository.findByNameIn(genresNames);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NoSuchUserException(userId));
 
         user.getGenres().addAll(genres);
         userRepository.save(user);
@@ -37,17 +38,17 @@ public class UserGenresService {
     @Transactional
     public void removeGenreForUser(String genreName, Long userId) {
         Genre genre = genreRepository.findByName(genreName)
-                .orElseThrow(() -> new RuntimeException("Genre Not Found"));
+                .orElseThrow(() -> new NoSuchGenreException(genreName));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NoSuchUserException(userId));
 
         user.getGenres().remove(genre);
     }
 
     public Set<String> getGenresNamesForUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NoSuchUserException(userId));
 
         return user.getGenresNames();
     }

@@ -49,20 +49,12 @@ public class FindController {
 
     @GetMapping(path = "album/{title}")
     public ResponseEntity<List<AlbumResponse>> findAlbumsByTitle(@PathVariable String title) {
-        try {
-            return ResponseEntity.ok(albumService.findAlbumsByTitle(title));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(albumService.findAlbumsByTitle(title));
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping(path = "/snippet/batch")
     public ResponseEntity<List<TrackMetadataResponse>> findSnippetsMetadata(Authentication authentication) {
-        try {
-            return ResponseEntity.ok(trackService.findTracksBatchByUserGenres(authentication.getName()));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(trackService.findTracksBatchByUserGenres(authentication.getName()));
     }
 }

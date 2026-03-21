@@ -7,6 +7,8 @@ import com.kanifol.musicserver.repository.model.TrackMetadata;
 import com.kanifol.musicserver.repository.minio.MinioDatasource;
 import com.kanifol.musicserver.service.dto.res.AlbumResponse;
 import com.kanifol.musicserver.service.dto.res.TrackMetadataResponse;
+import com.kanifol.musicserver.service.exc.NoSuchAlbumException;
+import com.kanifol.musicserver.service.exc.NoSuchTrackException;
 import com.kanifol.musicserver.service.mappers.DtoMappers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,6 @@ import java.util.*;
 
 @Service
 public class AlbumService {
-
     private final MinioDatasource minioDatasource;
     private final AlbumRepository albumRepository;
 
@@ -28,11 +29,7 @@ public class AlbumService {
 
     public ResponseEntity<StreamingResponseBody> findStreamByTrackNumber(Long albumId, Short trackNumber, String rangeHeader) {
         String key = TrackMetadata.toTrackUrl(albumId, trackNumber);
-        try {
-            return MinioStreamProvider.getStreamByKey(key, rangeHeader, minioDatasource);
-        } catch (Exception e) {
-            throw new NoSuchElementException("Track with " + key + " not found");
-        }
+        return MinioStreamProvider.getStreamByKey(key, rangeHeader, minioDatasource);
     }
 
     public TrackMetadataResponse findMetaDataByTrackNumber(Long albumId, Short trackNumber) {
@@ -42,7 +39,7 @@ public class AlbumService {
                 .stream()
                 .filter(it -> Objects.equals(it.getTrackNumber(), trackNumber))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Track with id " + trackNumber + " not found"));
+                .orElseThrow(() -> new NoSuchTrackException(trackNumber.longValue()));
 
         return DtoMappers.toDto(trackMetadata);
     }
@@ -52,8 +49,6 @@ public class AlbumService {
         return out -> {
             try (InputStream stream = minioDatasource.coverStream(Album.toCoverUrl(albumId))) {
                 stream.transferTo(out);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
         };
     }
@@ -70,14 +65,14 @@ public class AlbumService {
 
     public List<AlbumResponse> findAlbumsByTitle(String title) {
         List<Album> albums = albumRepository.findByTitleContaining(title);
-        if  (albums.isEmpty())
-            throw new NoSuchElementException("Albums containing " + title + " not found");
+        if (albums.isEmpty())
+            throw new NoSuchAlbumException(title);
 
         return albums.stream().map(DtoMappers::toDto).toList();
     }
 
     private Album findAlbumById(Long albumId) {
         return albumRepository.findById(albumId)
-                .orElseThrow(() -> new NoSuchElementException("Album with id " + albumId + " not found"));
+                .orElseThrow(() -> new NoSuchAlbumException(albumId));
     }
 }

@@ -47,11 +47,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
-        try {
-            Authentication auth = userService.login(request);
-            return new ResponseEntity<>(jwtService.generateTokenResponse(auth), HttpStatus.OK);
-        } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+        return new ResponseEntity<>(
+                jwtService.generateTokenResponse(userService.login(request)),
+                HttpStatus.OK
+        );
     }
 }

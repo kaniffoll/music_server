@@ -6,6 +6,8 @@ import com.kanifol.musicserver.repository.model.Role;
 import com.kanifol.musicserver.repository.model.User;
 import com.kanifol.musicserver.service.dto.req.LoginRequest;
 import com.kanifol.musicserver.service.dto.req.RegisterRequest;
+import com.kanifol.musicserver.service.exc.NoSuchUserException;
+import com.kanifol.musicserver.service.exc.NoSuchRoleException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,7 +39,7 @@ public class UserService {
                 passwordHash
         );
         Role role = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException("Role Not Found"));
+                .orElseThrow(() -> new NoSuchRoleException("ROLE_USER"));
         user.setRoles(Set.of(role));
         userRepository.save(user);
 
@@ -72,6 +74,6 @@ public class UserService {
 
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Username Not Found"));
+                .orElseThrow(() -> new NoSuchUserException(username));
     }
 }
