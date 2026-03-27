@@ -1,4 +1,4 @@
-package com.kanifol.musicserver.handler;
+package com.kanifol.musicserver.controller.handler;
 
 import com.kanifol.musicserver.repository.minio.exc.MinioException;
 import com.kanifol.musicserver.service.exc.CustomNoSuchElementException;

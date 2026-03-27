@@ -5,12 +5,14 @@ import com.kanifol.musicserver.service.dto.req.AddGenresRequest;
 import com.kanifol.musicserver.service.dto.req.RemoveGenreRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Set;
 
 @RestController
 @RequestMapping(path = "user/")
 public class UserGenresController {
     private final UserGenresService userGenresService;
+
     public UserGenresController(UserGenresService userGenresService) {
         this.userGenresService = userGenresService;
     }
@@ -20,12 +22,8 @@ public class UserGenresController {
             @RequestBody RemoveGenreRequest removeGenreRequest,
             @PathVariable("id") Long userId
     ) {
-        try {
-            userGenresService.removeGenreForUser(removeGenreRequest.genreName(), userId);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        userGenresService.removeGenreForUser(removeGenreRequest.genreName(), userId);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(path = "{id}/add_genres")
@@ -33,23 +31,15 @@ public class UserGenresController {
             @RequestBody AddGenresRequest addGenresRequest,
             @PathVariable("id") Long userId
     ) {
-        try {
-            userGenresService.addGenresForUser(addGenresRequest.genreNames(), userId);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        userGenresService.addGenresForUser(addGenresRequest.genreNames(), userId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping(path = "{id}/user_genres")
     public ResponseEntity<Set<String>> getUserGenresForUser(
             @PathVariable("id") Long userId
     ) {
-        try {
-            return ResponseEntity.ok(userGenresService.getGenresNamesForUser(userId));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok(userGenresService.getGenresNamesForUser(userId));
     }
 
     @GetMapping(path = "all_genres")

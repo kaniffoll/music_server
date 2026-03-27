@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserGenresService {
-
     private final GenreRepository genreRepository;
     private final UserRepository userRepository;
 

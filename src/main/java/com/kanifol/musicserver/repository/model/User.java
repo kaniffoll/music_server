@@ -36,8 +36,20 @@ public class User {
     )
     private Set<Genre> genres = new HashSet<>();
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_tracks",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "track_id")
+    )
+    private Set<TrackMetadata> tracks = new HashSet<>();
+
     public Set<Genre> getGenres() {
         return genres;
+    }
+
+    public Set<TrackMetadata> getTracks() {
+        return tracks;
     }
 
     public void setGenres(Set<Genre> genres) {

@@ -45,7 +45,6 @@ public class AlbumService {
     }
 
     public StreamingResponseBody findCoverByAlbumId(Long albumId) {
-
         return out -> {
             try (InputStream stream = minioDatasource.coverStream(Album.toCoverUrl(albumId))) {
                 stream.transferTo(out);
