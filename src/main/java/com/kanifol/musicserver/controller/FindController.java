@@ -32,7 +32,6 @@ public class FindController {
         return trackService.findStreamById(id, range, TrackKeyType.MAIN);
     }
 
-    //TODO: проверить почему сигнатура методов отличается
     @GetMapping(path = "/snippet/{id}")
     public ResponseEntity<StreamingResponseBody> findSnippet(
             @PathVariable Long id

@@ -70,6 +70,10 @@
     - **EN**: Get track stream by ID
     - **RU**: Найти трек по ID (поток)
 
+- **GET** `/snippet/{id}`
+    - **EN**: Get snippet by id
+    - **RU**: Получить сниппет по id
+
 - **GET** `/track/{title}`
     - **EN**: Find tracks by title
     - **RU**: Найти треки по названию
@@ -77,6 +81,10 @@
 - **GET** `/album/{title}`
     - **EN**: Find albums by title
     - **RU**: Найти альбомы по названию
+
+- **GET** `/snippet/batch`
+    - **EN**: Get snippet batch
+    - **RU**: Получить выборку сниппетов
 
 ---
 
@@ -95,4 +103,12 @@
 
 - **GET** `all_genres`
     - **EN**: Get all available genres
-    - **RU**: Получить все доступные жанры  
+    - **RU**: Получить все доступные жанры
+  
+- **POST** `{userId}/track/{trackId}`
+    - **EN**: Add track in favorites for user
+    - **RU**: Добавить трек в избранное для пользователя
+
+- **GET** `{userId}/track`
+    - **EN**: Get user's favorite tracks 
+    - **RU**: Получить любимые треки пользователя
