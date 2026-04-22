@@ -44,12 +44,15 @@ public class AlbumService {
         return DtoMappers.toDto(trackMetadata);
     }
 
-    public StreamingResponseBody findCoverByAlbumId(Long albumId) {
-        return out -> {
-            try (InputStream stream = minioDatasource.coverStream(Album.toCoverUrl(albumId))) {
-                stream.transferTo(out);
-            }
-        };
+    public byte[] findCoverByAlbumId(Long albumId) {
+        try (InputStream stream =
+                     minioDatasource.coverStream(Album.toCoverUrl(albumId))) {
+
+            return stream.readAllBytes();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load cover", e);
+        }
     }
 
     public List<TrackMetadataResponse> findTracksByAlbumId(Long albumId) {

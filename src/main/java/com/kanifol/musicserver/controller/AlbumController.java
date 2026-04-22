@@ -35,13 +35,14 @@ public class AlbumController {
         return ResponseEntity.ok(albumService.findMetaDataByTrackNumber(albumId, trackNumber));
     }
 
-    @GetMapping(path = "{albumId}/cover")
-    public ResponseEntity<StreamingResponseBody> findCoverById(
-            @PathVariable Long albumId
-    ) {
-        StreamingResponseBody body = albumService.findCoverByAlbumId(albumId);
-        //TODO: стоит вынести в бд данные о хранимом типе
-        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(body);
+    @GetMapping("{albumId}/cover")
+    public ResponseEntity<byte[]> findCoverById(@PathVariable Long albumId) {
+
+        byte[] image = albumService.findCoverByAlbumId(albumId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(image);
     }
 
     @GetMapping(path = "{albumId}/tracks")
