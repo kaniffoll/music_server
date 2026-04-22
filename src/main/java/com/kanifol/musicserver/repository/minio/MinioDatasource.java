@@ -4,6 +4,7 @@ import com.kanifol.musicserver.repository.minio.exc.*;
 import io.minio.*;
 import io.minio.messages.Item;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 
@@ -86,6 +87,25 @@ public class MinioDatasource {
         }
     }
 
+    public void uploadCover(MultipartFile file, String key) {
+        if (key == null || key.isBlank())
+            throw new EmptyMinioKeyException();
+
+        try {
+            minioClient.putObject(
+                    PutObjectArgs
+                            .builder()
+                            .bucket(minioProperties.getCoversBucket())
+                            .object(key)
+                            .stream(file.getInputStream(), file.getSize(), -1)
+                            .contentType(file.getContentType())
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new PutObjectException();
+        }
+    }
+
     public void deleteTrack(String key) {
         if (key == null || key.isBlank())
             throw new EmptyMinioKeyException();
@@ -103,7 +123,7 @@ public class MinioDatasource {
         }
     }
 
-    public void deleteAlbum(String prefix) {
+    public void deleteAlbum(String prefix, String key) {
         if (prefix == null || prefix.isBlank())
             throw new EmptyMinioPrefixException();
 
@@ -127,6 +147,14 @@ public class MinioDatasource {
                                 .build()
                 );
             }
+
+            minioClient.removeObject(
+                    RemoveObjectArgs
+                            .builder()
+                            .bucket(minioProperties.getCoversBucket())
+                            .object(key)
+                            .build()
+            );
         } catch (Exception e) {
             throw new DeleteObjectException();
         }

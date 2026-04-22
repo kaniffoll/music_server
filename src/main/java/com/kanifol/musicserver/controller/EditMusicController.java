@@ -44,9 +44,10 @@ public class EditMusicController {
 
     @PostMapping(path = "album/{title}")
     public ResponseEntity<String> createAlbum(
-            @PathVariable String title
+            @PathVariable String title,
+            @RequestPart("file") MultipartFile file
     ) {
-        editMusicService.createAlbum(title);
+        editMusicService.createAlbum(title, file);
         return ResponseEntity.ok("Album created");
     }
 }

@@ -111,12 +111,17 @@ public class EditMusicService {
         }
     }
 
-    public void createAlbum(String title) {
+    @Transactional
+    public void createAlbum(String title, MultipartFile file) {
         Optional<Album> album = albumRepository.findByTitle(title);
         if (album.isPresent())
             throw new IllegalStateException("Album already exists");
 
-        albumRepository.save(new Album(title));
+        Album newAlbum = new Album(title);
+        albumRepository.save(newAlbum);
+
+        String key = Album.toCoverUrl(newAlbum.getId());
+        minioDatasource.uploadCover(file, key);
     }
 
     @Transactional
@@ -133,7 +138,8 @@ public class EditMusicService {
         Album album = albumRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Album not found"));
         String prefix = id + "/";
+        String key = Album.toCoverUrl(id);
         albumRepository.delete(album);
-        minioDatasource.deleteAlbum(prefix);
+        minioDatasource.deleteAlbum(prefix, key);
     }
 }
