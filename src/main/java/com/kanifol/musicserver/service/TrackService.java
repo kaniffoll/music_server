@@ -7,6 +7,7 @@ import com.kanifol.musicserver.repository.minio.MinioDatasource;
 import com.kanifol.musicserver.repository.minio.MinioStreamProvider;
 import com.kanifol.musicserver.repository.model.Genre;
 import com.kanifol.musicserver.repository.model.TrackMetadata;
+import com.kanifol.musicserver.repository.model.User;
 import com.kanifol.musicserver.service.dto.res.TrackMetadataResponse;
 import com.kanifol.musicserver.service.exc.NoSuchTrackException;
 import com.kanifol.musicserver.service.exc.NoSuchUserException;
@@ -61,17 +62,31 @@ public class TrackService {
         }
     }
 
-    public List<TrackMetadataResponse> findTracksByTitle(String title) {
+    public List<TrackMetadataResponse> findTracksByTitle(String title, String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new NoSuchUserException(username)
+        );
+        Set<Long> likedTrackIds = user.getTracks()
+                .stream()
+                .map(TrackMetadata::getId)
+                .collect(Collectors.toSet());
         List<TrackMetadata> trackMetadataList = trackRepository.findByTitleContaining(title);
         if (trackMetadataList.isEmpty())
             throw new NoSuchTrackException(title);
         return trackMetadataList
                 .stream()
-                .map(DtoMappers::toDto)
+                .map(track -> DtoMappers.toDto(track, likedTrackIds))
                 .toList();
     }
 
     public List<TrackMetadataResponse> findTracksBatchByUserGenres(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new NoSuchUserException(username)
+        );
+        Set<Long> likedTrackIds = user.getTracks()
+                .stream()
+                .map(TrackMetadata::getId)
+                .collect(Collectors.toSet());
         Set<String> genres = redisRepository.getUserFavoriteGenres(username);
         if (genres.isEmpty()) {
             genres = userRepository
@@ -107,6 +122,9 @@ public class TrackService {
                 trackMetadataList.stream()
                         .map(it -> it.getId().toString())
                         .collect(Collectors.toList()));
-        return trackMetadataList.stream().map(DtoMappers::toDto).collect(Collectors.toList());
+        return trackMetadataList
+                .stream()
+                .map(track -> DtoMappers.toDto(track, likedTrackIds))
+                .collect(Collectors.toList());
     }
 }

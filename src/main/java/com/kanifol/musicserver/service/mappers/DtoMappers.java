@@ -6,14 +6,20 @@ import com.kanifol.musicserver.service.dto.req.UploadTrackMetadataRequest;
 import com.kanifol.musicserver.service.dto.res.AlbumResponse;
 import com.kanifol.musicserver.service.dto.res.TrackMetadataResponse;
 
+import java.util.Set;
+
 public class DtoMappers {
-    public static TrackMetadataResponse toDto(TrackMetadata trackMetadata) {
+    public static TrackMetadataResponse toDto(
+            TrackMetadata trackMetadata,
+            Set<Long> likedTrackIds
+    ) {
         return new TrackMetadataResponse(
                 trackMetadata.getId(),
                 trackMetadata.getTitle(),
                 trackMetadata.getArtist(),
                 trackMetadata.getAlbum().getId(),
-                trackMetadata.getTrackNumber()
+                trackMetadata.getTrackNumber(),
+                likedTrackIds.contains(trackMetadata.getId())
         );
     }
 

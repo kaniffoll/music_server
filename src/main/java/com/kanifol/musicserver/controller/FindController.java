@@ -41,9 +41,11 @@ public class FindController {
 
     @GetMapping(path = "/track/{title}")
     public ResponseEntity<List<TrackMetadataResponse>> findTracksByName(
-            @PathVariable String title
+            @PathVariable String title,
+            Authentication authentication
     ) {
-        return ResponseEntity.ok(trackService.findTracksByTitle(title));
+        String username = authentication.getName();
+        return ResponseEntity.ok(trackService.findTracksByTitle(title, username));
     }
 
     @GetMapping(path = "album/{title}")

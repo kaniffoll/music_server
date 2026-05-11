@@ -5,5 +5,6 @@ public record TrackMetadataResponse(
         String title,
         String artist,
         Long albumId,
-        Short trackNumber
+        Short trackNumber,
+        Boolean isLiked
 ) { }

@@ -4,6 +4,7 @@ import com.kanifol.musicserver.service.AlbumService;
 import com.kanifol.musicserver.service.dto.res.TrackMetadataResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -29,9 +30,11 @@ public class AlbumController {
     @GetMapping(path = "{albumId}/track/{trackNumber}/meta_data")
     public ResponseEntity<TrackMetadataResponse> findMetaDataById(
             @PathVariable Long albumId,
-            @PathVariable Short trackNumber
+            @PathVariable Short trackNumber,
+            Authentication authentication
     ) {
-        return ResponseEntity.ok(albumService.findMetaDataByTrackNumber(albumId, trackNumber));
+        String username = authentication.getName();
+        return ResponseEntity.ok(albumService.findMetaDataByTrackNumber(albumId, trackNumber, username));
     }
 
     @GetMapping("{albumId}/cover")
@@ -46,8 +49,10 @@ public class AlbumController {
 
     @GetMapping(path = "{albumId}/tracks")
     public ResponseEntity<List<TrackMetadataResponse>> findTracksByAlbumId(
-            @PathVariable Long albumId
+            @PathVariable Long albumId,
+            Authentication authentication
     ) {
-        return ResponseEntity.ok(albumService.findTracksByAlbumId(albumId));
+        String username = authentication.getName();
+        return ResponseEntity.ok(albumService.findTracksByAlbumId(albumId, username));
     }
 }

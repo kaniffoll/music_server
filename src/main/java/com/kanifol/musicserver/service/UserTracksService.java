@@ -38,7 +38,14 @@ public class UserTracksService {
     public Set<TrackMetadataResponse> getTracksForUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchUserException(userId));
-        return user.getTracks().stream().map(DtoMappers::toDto).collect(Collectors.toSet());
+        Set<Long> likedTrackIds = user.getTracks()
+                .stream()
+                .map(TrackMetadata::getId)
+                .collect(Collectors.toSet());
+        return user.getTracks()
+                .stream()
+                .map(track -> DtoMappers.toDto(track, likedTrackIds))
+                .collect(Collectors.toSet());
     }
 
     @Transactional
