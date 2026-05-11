@@ -39,7 +39,7 @@ public class UserTracksController {
         );
     }
 
-    @GetMapping(path = "{username}/track/{trackId}")
+    @DeleteMapping(path = "{username}/track/{trackId}")
     public ResponseEntity<?> deleteTrack(
             @PathVariable("username") String username,
             @PathVariable("trackId") Long trackId
