@@ -33,6 +33,9 @@ public class UserService {
     @Transactional
     public Authentication registerUser(RegisterRequest registerRequest) {
         String passwordHash = passwordEncoder.encode(registerRequest.password());
+        if (userRepository.findByUsername(registerRequest.username()).isPresent())
+            throw new BadCredentialsException("Username is already in use");
+
         User user = new User(
                 registerRequest.username(),
                 registerRequest.email(),
