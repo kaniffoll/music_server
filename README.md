@@ -112,3 +112,7 @@
 - **GET** `{username}/track`
     - **EN**: Get user's favorite tracks 
     - **RU**: Получить любимые треки пользователя
+
+- **DELETE** `{username}/track/{trackId}`
+  - **EN**: Delete track from favorites for user
+  - **RU**: Удалить трек из избранных для пользователя

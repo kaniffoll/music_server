@@ -38,4 +38,14 @@ public class UserTracksController {
                 userTracksService.getTracksForUser(userId)
         );
     }
+
+    @GetMapping(path = "{username}/track/{trackId}")
+    public ResponseEntity<?> deleteTrack(
+            @PathVariable("username") String username,
+            @PathVariable("trackId") Long trackId
+    ) {
+        Long userId = userService.getUserByUsername(username).getId();
+        userTracksService.removeTrackForUser(trackId, userId);
+        return ResponseEntity.ok().build();
+    }
 }

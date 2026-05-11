@@ -40,4 +40,17 @@ public class UserTracksService {
                 .orElseThrow(() -> new NoSuchUserException(userId));
         return user.getTracks().stream().map(DtoMappers::toDto).collect(Collectors.toSet());
     }
+
+    @Transactional
+    public void removeTrackForUser(Long trackId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchUserException(userId));
+
+        TrackMetadata trackMetadata = trackRepository.findById(trackId)
+                .orElseThrow(() -> new NoSuchTrackException(trackId));
+
+        user.getTracks().remove(trackMetadata);
+
+        userRepository.save(user);
+    }
 }
