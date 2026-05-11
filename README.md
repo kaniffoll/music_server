@@ -89,15 +89,15 @@
 ---
 
 ### 5. `user/`
-- **DELETE** `{id}/remove_genre`
+- **DELETE** `{usename}/remove_genre`
     - **EN**: Remove a genre from user's favorites
     - **RU**: Удалить жанр из любимых у пользователя
 
-- **POST** `{id}/add_genres`
+- **POST** `{usename}/add_genres`
     - **EN**: Add genres to user
     - **RU**: Добавить жанры пользователю
 
-- **GET** `{id}/user_genres`
+- **GET** `{username}/user_genres`
     - **EN**: Get user's favorite genres
     - **RU**: Получить жанры пользователя
 
@@ -105,10 +105,10 @@
     - **EN**: Get all available genres
     - **RU**: Получить все доступные жанры
   
-- **POST** `{userId}/track/{trackId}`
+- **POST** `{username}/track/{trackId}`
     - **EN**: Add track in favorites for user
     - **RU**: Добавить трек в избранное для пользователя
 
-- **GET** `{userId}/track`
+- **GET** `{username}/track`
     - **EN**: Get user's favorite tracks 
     - **RU**: Получить любимые треки пользователя
