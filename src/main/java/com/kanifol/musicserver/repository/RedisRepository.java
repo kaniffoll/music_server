@@ -35,4 +35,8 @@ public class RedisRepository {
         String redisKey = username + GENRES_KEY_POSTFIX;
         return redisClient.smembers(redisKey);
     }
+
+    public void clearUsedIdsForUser(String username) {
+        redisClient.del(username);
+    }
 }

@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -89,42 +91,79 @@ public class TrackService {
                 .collect(Collectors.toSet());
         Set<String> genres = redisRepository.getUserFavoriteGenres(username);
         if (genres.isEmpty()) {
-            genres = userRepository
-                    .findByUsername(username)
-                    .orElseThrow(() -> new NoSuchUserException(username))
-                    .getGenres()
+            genres = user.getGenres()
                     .stream()
                     .map(Genre::toString)
                     .collect(Collectors.toSet());
-            redisRepository.addUserFavoriteGenres(
-                    username,
-                    genres
-            );
+
+            redisRepository.addUserFavoriteGenres(username, genres);
         }
+
         Set<Long> usedIds = redisRepository.getUsedIdsForUser(username)
                 .stream()
                 .map(Long::parseLong)
                 .collect(Collectors.toSet());
 
-        Long random = RandomUtils.insecure().randomLong(
-                trackRepository.findMinId(),
-                trackRepository.findMaxId()
-        );
-        if (usedIds.isEmpty()) usedIds.add(-1L);
+        List<TrackMetadata> trackMetadataList =
+                findTracksBatch(genres, usedIds);
 
-        List<TrackMetadata> trackMetadataList = trackRepository.findTrackBatchGrater(usedIds, genres, random);
         if (trackMetadataList.isEmpty()) {
-            trackMetadataList = trackRepository.findTrackBatchLower(usedIds, genres, random);
+
+            redisRepository.clearUsedIdsForUser(username);
+
+            usedIds = new HashSet<>();
+
+            trackMetadataList =
+                    findTracksBatch(genres, usedIds);
+        }
+
+        if (trackMetadataList.isEmpty()) {
+            return Collections.emptyList();
         }
 
         redisRepository.addUsedIdsForUser(
                 username,
                 trackMetadataList.stream()
-                        .map(it -> it.getId().toString())
-                        .collect(Collectors.toList()));
-        return trackMetadataList
-                .stream()
+                        .map(track -> track.getId().toString())
+                        .collect(Collectors.toList())
+        );
+
+        return trackMetadataList.stream()
                 .map(track -> DtoMappers.toDto(track, likedTrackIds))
                 .collect(Collectors.toList());
+    }
+
+    private List<TrackMetadata> findTracksBatch(
+            Set<String> genres,
+            Set<Long> usedIds
+    ) {
+
+        Long random = RandomUtils.insecure().randomLong(
+                trackRepository.findMinId(),
+                trackRepository.findMaxId()
+        );
+
+        Set<Long> queryUsedIds = new HashSet<>(usedIds);
+
+        if (queryUsedIds.isEmpty()) {
+            queryUsedIds.add(-1L);
+        }
+
+        List<TrackMetadata> tracks =
+                trackRepository.findTrackBatchGrater(
+                        queryUsedIds,
+                        genres,
+                        random
+                );
+
+        if (tracks.isEmpty()) {
+            tracks = trackRepository.findTrackBatchLower(
+                    queryUsedIds,
+                    genres,
+                    random
+            );
+        }
+
+        return tracks;
     }
 }

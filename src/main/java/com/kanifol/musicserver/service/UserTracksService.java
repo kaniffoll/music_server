@@ -30,6 +30,7 @@ public class UserTracksService {
                 .orElseThrow(() -> new NoSuchTrackException(trackId));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchUserException(userId));
+        System.out.println(trackMetadata);
         user.getTracks().add(trackMetadata);
         userRepository.save(user);
     }
