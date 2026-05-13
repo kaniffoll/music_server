@@ -55,6 +55,16 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm ->
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, resp, e) -> {
+                            resp.setStatus(401);
+                            resp.getWriter().write("Unauthorized");
+                        }))
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler((req, resp, e) -> {
+                            resp.setStatus(403);
+                            resp.getWriter().write("Forbidden");
+                        }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated())
